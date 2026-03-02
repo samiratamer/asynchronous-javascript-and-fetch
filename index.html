@@ -5,30 +5,68 @@
   <title>Pokemon Team Builder</title>
   <style>
     body {
-      background-color: #a8d8ea;
+      background-color: pink;
       display: flex;
       justify-content: center;
       align-items: flex-start;
       min-height: 100vh;
-      font-family: Arial, sans-serif;
+      font-family: Georgia, serif;
       padding: 30px;
     }
 
     #app {
-      background: white;
-      border: 4px solid #e6b422;
+      background: lavenderblush;
+      border: 4px solid hotpink;
       border-radius: 20px;
       padding: 30px;
       width: 420px;
     }
 
-    h2 { text-align: center; margin-top: 0; }
+    h2 {
+      text-align: center;
+      color: deeppink;
+      font-size: 1.6rem;
+      margin-top: 0;
+    }
 
-    #search-area { text-align: center; margin-bottom: 15px; }
+    #search-area {
+      text-align: center;
+      margin-bottom: 15px;
+      color: deeppink;
+      font-weight: bold;
+    }
 
-    #pokemon-display { text-align: center; min-height: 180px; }
+    #pokemon-input {
+      border: 2px solid hotpink;
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-family: Georgia, serif;
+      outline: none;
+    }
 
-    #pokemon-display img { width: 150px; }
+    #find-btn {
+      background-color: hotpink;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-family: Georgia, serif;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #find-btn:hover {
+      background-color: deeppink;
+    }
+
+    #pokemon-display {
+      text-align: center;
+      min-height: 180px;
+    }
+
+    #pokemon-display img {
+      width: 150px;
+    }
 
     #moves-area {
       display: grid;
@@ -37,37 +75,64 @@
       margin: 10px 0;
     }
 
-    #moves-area select { width: 100%; padding: 4px; }
+    #moves-area select {
+      width: 100%;
+      padding: 4px;
+      border: 2px solid plum;
+      border-radius: 10px;
+      font-family: Georgia, serif;
+    }
 
-    #add-btn { display: block; margin: 10px auto; }
+    #add-btn {
+      display: block;
+      margin: 10px auto;
+      background-color: hotpink;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 7px 22px;
+      font-family: Georgia, serif;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-    #team-list { margin-top: 20px; }
+    #add-btn:hover {
+      background-color: deeppink;
+    }
+
+    #team-list {
+      margin-top: 20px;
+    }
 
     .team-entry {
       display: flex;
       align-items: center;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      border: 2px solid plum;
+      border-radius: 12px;
+      background-color: mistyrose;
       padding: 8px;
       margin-bottom: 8px;
       gap: 10px;
     }
 
-    .team-entry img { width: 60px; }
+    .team-entry img {
+      width: 60px;
+    }
 
     .team-entry ul {
       margin: 0;
       padding-left: 18px;
       font-size: 14px;
+      color: purple;
     }
   </style>
 </head>
 <body>
 <div id="app">
-  <h2>Pokemon Team Builder</h2>
+  <h2>✿ Pokemon Team Builder ✿</h2>
 
   <div id="search-area">
-    <label><strong>Name or ID</strong><br>
+    <label>Name or ID<br>
       <input type="text" id="pokemon-input" />
       <button id="find-btn">Find</button>
     </label>
@@ -88,7 +153,6 @@
 </div>
 
 <script>
-  // Cache to avoid redundant API calls
   const cache = {};
 
   const findBtn = document.getElementById('find-btn');
@@ -99,7 +163,12 @@
   let currentSprite = '';
   let currentName = '';
 
-  findBtn.addEventListener('click', async () => {
+  findBtn.addEventListener('click', fetchPokemon);
+  document.getElementById('pokemon-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') fetchPokemon();
+  });
+
+  async function fetchPokemon() {
     const query = document.getElementById('pokemon-input').value.trim().toLowerCase();
     if (!query) return;
 
@@ -108,7 +177,6 @@
     addBtn.style.display = 'none';
 
     try {
-      // Use cache if available
       let data;
       if (cache[query]) {
         data = cache[query];
@@ -116,18 +184,16 @@
         const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${query}`);
         if (!res.ok) throw new Error('Pokemon not found');
         data = await res.json();
-        cache[query] = data; // Store in cache
+        cache[query] = data;
       }
 
       currentSprite = data.sprites.front_default;
       currentName = data.name;
 
-      // Display image
       const img = document.createElement('img');
       img.src = currentSprite;
       img.alt = currentName;
 
-      // Display audio
       const cry = data.cries?.latest || data.cries?.legacy || '';
       const audio = document.createElement('audio');
       audio.controls = true;
@@ -142,7 +208,6 @@
       display.appendChild(document.createElement('br'));
       display.appendChild(audio);
 
-      // Populate move dropdowns
       const moves = data.moves.map(m => m.move.name);
       ['move1','move2','move3','move4'].forEach(id => {
         const sel = document.getElementById(id);
@@ -161,7 +226,7 @@
     } catch (err) {
       display.innerHTML = `<p style="color:red;">${err.message}</p>`;
     }
-  });
+  }
 
   addBtn.addEventListener('click', () => {
     const selectedMoves = [
@@ -188,11 +253,6 @@
     entry.appendChild(img);
     entry.appendChild(ul);
     document.getElementById('team-list').appendChild(entry);
-  });
-
-  // Allow pressing Enter to search
-  document.getElementById('pokemon-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') findBtn.click();
   });
 </script>
 </body>
